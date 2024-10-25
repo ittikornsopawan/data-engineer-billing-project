@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS product.m_products
 CREATE TABLE IF NOT EXISTS product.m_product_specifications 
 (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    code VARCHAR(16) NOT NULL,
+    code VARCHAR(32) NOT NULL,
     name VARCHAR(128) NOT NULL,
     description TEXT,
     product_id UUID NOT NULL REFERENCES product.m_products(id),
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS product.m_pricing_model
 CREATE TABLE IF NOT EXISTS transaction.t_instances
 (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    code VARCHAR(16) NOT NULL,
+    code VARCHAR(32) NOT NULL,
     name VARCHAR(128) NOT NULL,
     account_id UUID NOT NULL REFERENCES master.m_accounts(id),
     product_id UUID NOT NULL REFERENCES product.m_products(id),
