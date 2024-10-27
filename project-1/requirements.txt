@@ -1,3 +1,14 @@
-pandas
-sqlalchemy
+# Django framework
+Django>=4.0
+
+# PostgreSQL database driver
 psycopg2-binary
+
+# REST API framework
+djangorestframework
+
+# CORS handling
+django-cors-headers
+
+# Data manipulation and analysis
+pandas

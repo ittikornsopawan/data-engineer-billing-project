@@ -68,7 +68,7 @@ services:
       DB_NAME: project1_db
     networks:
       - backend
-    command: python /usr/src/app/main.py
+    command: python /usr/src/app/app/main.py
     restart: on-failure
 
   project-2:
