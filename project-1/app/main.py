@@ -291,24 +291,32 @@ def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id
 
     transactions = db.execute_query(query, (parent_account_id,))
 
+
     if transactions != None and len(transactions) > 0:
         output_dir = "transactions"
         os.makedirs(output_dir, exist_ok=True)
 
         output_csv_path = f"{output_dir}/{parent_account_code}_CUR_{current_year_month}.csv"
+        print(f"Output CSV path: {output_csv_path}")
+
         output_gz_path = f"{output_csv_path}.gz"
+        print(f"Gzip path: {output_gz_path}")
 
         column_names = db.get_column_names(query)
 
-        with open(output_csv_path, mode='w', newline='') as csv_file:
-            writer = csv.writer(csv_file)
-            writer.writerow(column_names)
-            writer.writerows(transactions)
+        try:
+            with open(output_csv_path, mode='w', newline='') as csv_file:
+                writer = csv.writer(csv_file)
+                writer.writerow(column_names)
+                writer.writerows(transactions)
+            print(f"CSV file created at: {output_csv_path}")
+        except Exception as e:
+            print(f"Error writing CSV file: {e}")
 
-        with open(output_csv_path, 'rb') as f_in, gzip.open(output_gz_path, 'wb') as f_out:
-            f_out.writelines(f_in)
+        # with open(output_csv_path, 'rb') as f_in, gzip.open(output_gz_path, 'wb') as f_out:
+        #     f_out.writelines(f_in)
 
-        os.remove(output_csv_path)
+        # os.remove(output_csv_path)
 
 def get_current_period():
     current_date = datetime.now()

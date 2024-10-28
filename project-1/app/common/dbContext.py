@@ -1,10 +1,15 @@
-# app/common/dbContext.py
+import time
+import os
 
 import psycopg2
 from psycopg2 import OperationalError
 from app.config.config import DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 from app.common.dbObject import convert_to_object
-import time
+
+db_host = os.getenv("DB_HOST")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
 
 class dbContext:
     def __init__(self):
@@ -18,11 +23,10 @@ class dbContext:
         for attempt in range(1, attempts + 1):
             try:
                 self.connection = psycopg2.connect(
-                    dbname=DB_NAME,
-                    user=DB_USERNAME,
-                    password=DB_PASSWORD,
-                    host=DB_HOST,
-                    port=DB_PORT
+                    dbname=db_name,
+                    user=db_user,
+                    password=db_password,
+                    host=db_host  
                 )
                 self.cursor = self.connection.cursor()
                 print("Connection to the database was successful.")

@@ -13,34 +13,6 @@ services:
     ports:
       - "5431:5432"
 
-  db-project-2:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: project2_user
-      POSTGRES_PASSWORD: project2_password
-      POSTGRES_DB: project2_db
-    volumes:
-      - project2_data:/var/lib/postgresql/data
-      - ./initial_db/project-2:/docker-entrypoint-initdb.d
-    networks:
-      - backend
-    ports:
-      - "5432:5432"
-
-  db-project-3:
-    image: postgres:13
-    environment:
-      POSTGRES_USER: project3_user
-      POSTGRES_PASSWORD: project3_password
-      POSTGRES_DB: project3_db
-    volumes:
-      - project3_data:/var/lib/postgresql/data
-      - ./initial_db/project-3:/docker-entrypoint-initdb.d
-    networks:
-      - backend
-    ports:
-      - "5433:5432"
-
   db-process:
     image: postgres:13
     environment:
@@ -56,6 +28,7 @@ services:
       - "5434:5432"
 
   project-1:
+    image: project-1
     build:
       context: ./project-1
       dockerfile: Dockerfile
@@ -68,39 +41,9 @@ services:
       DB_NAME: project1_db
     networks:
       - backend
+    volumes:
+      - ./project-1/app/transactions:/usr/src/app/transactions
     command: python /usr/src/app/app/main.py
-    restart: on-failure
-
-  project-2:
-    build:
-      context: ./project-2
-      dockerfile: Dockerfile
-    depends_on:
-      - db-project-2
-    environment:
-      DB_HOST: db-project-2
-      DB_USER: project2_user
-      DB_PASSWORD: project2_password
-      DB_NAME: project2_db
-    networks:
-      - backend
-    command: python /usr/src/app/main.py
-    restart: on-failure
-
-  project-3:
-    build:
-      context: ./project-3
-      dockerfile: Dockerfile
-    depends_on:
-      - db-project-3
-    environment:
-      DB_HOST: db-project-3
-      DB_USER: project3_user
-      DB_PASSWORD: project3_password
-      DB_NAME: project3_db
-    networks:
-      - backend
-    command: python /usr/src/app/main.py
     restart: on-failure
 
   process-service:
@@ -109,8 +52,6 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - project-1
-      - project-2
-      - project-3
       - db-process
     environment:
       CSV_PATH: /usr/src/app/transactions/transactions.csv
@@ -118,14 +59,6 @@ services:
       DB_PROJECT1_USER: project1_user
       DB_PROJECT1_PASSWORD: project1_password
       DB_PROJECT1_NAME: project1_db
-      DB_PROJECT2_HOST: db-project-2
-      DB_PROJECT2_USER: project2_user
-      DB_PROJECT2_PASSWORD: project2_password
-      DB_PROJECT2_NAME: project2_db
-      DB_PROJECT3_HOST: db-project-3
-      DB_PROJECT3_USER: project3_user
-      DB_PROJECT3_PASSWORD: project3_password
-      DB_PROJECT3_NAME: project3_db
       DB_PROCESS_HOST: db-process
       DB_PROCESS_USER: process_user
       DB_PROCESS_PASSWORD: process_password
@@ -142,6 +75,4 @@ networks:
 
 volumes:
   project1_data:
-  project2_data:
-  project3_data:
   process_data:
