@@ -10,8 +10,11 @@ from app.common.dbContext import dbContext
 def get_instances(db = dbContext(), isClose = False):
     try:
         instances = db.execute_query("""
-                select ti.* from transaction.t_instances ti 
-            """)
+            select ti.* 
+            from transaction.t_instances ti
+            where ti.effectived_date <= current_timestamp
+            and (ti.expired_date >= current_timestamp or ti.expired_date is NULL)                
+        """)
             
         if(isClose == True):
             db.close()
@@ -57,9 +60,9 @@ def gen_instance_period(db = dbContext(), current_year_month = None, instance = 
             "period": current_year_month,
             "period_begin_date": first_date,
             "period_end_date": last_date,
-            "usage": Decimal('0E-12'),
+            "usage": Decimal('0'),
             "usage_date": datetime.now(),
-            "unblended_cost": Decimal('0E-12'),
+            "unblended_cost": Decimal('0'),
             "unblended_rate": Decimal(pricing_model[0].price_per_unit)
         }
 
@@ -138,7 +141,7 @@ def update_instance_period(db = dbContext(), current_year_month = None, instance
             "unblended_cost": instance.unblended_cost
         }
 
-        if instance_dict["usage"] == Decimal('0E-12'):
+        if instance_dict["usage"] == Decimal('0E-12') or instance_dict["usage"] == Decimal('0'):
             instance_dict["usage"] = Decimal(random.uniform(1.0, 100.0))
         else:
             random_percentage = Decimal(get_random_percentage())
@@ -236,57 +239,121 @@ def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id
         current_year_month = get_current_period()
 
     query = f"""
-                SELECT 
-                    tiu.id AS transaction_id,
-                    tiu.period,
-                    ma.code AS account_code,
-                    ma.name AS account_name,
-                    COALESCE(ma2.code, ma.code) AS parent_account_code,
-                    -- COALESCE(ma2.name, ma.name) AS parent_account_name,
-                    mat.name AS account_type,
-                    mat.group_name AS account_group_name,
-                    COALESCE(parent_discount_program.code, mdp.code) AS discount_program_code,
-                    -- COALESCE(parent_discount_program.min_value, madp.min_value) AS discount_program_value,
-                    ti.code AS instance_id,
-                    ti.name AS instance_name,
-                    mp.code AS product_code,
-                    mp.name AS product_name,
-                    tiu.usage AS amount_usage,
-                    tiu.unblended_cost,
-                    tiu.unblended_rate,
-                    CASE 
-                        WHEN COALESCE(parent_discount_program.min_value, madp.min_value) IS NOT NULL THEN 
-                            -1 * tiu.unblended_cost * (COALESCE(parent_discount_program.min_value, madp.min_value) / 100)
-                        ELSE 
-                            0
-                    END AS discount_amount,
-                    (tiu.unblended_cost + 
+                (
+                    SELECT 
+                        tiu.id AS transaction_id,
+                        tiu.period,
+                        'AWS' AS entity,
+                        'Usage' AS usage_type,
+                        ma.code AS account_code,
+                        ma.name AS account_name,
+                        COALESCE(ma2.code, ma.code) AS parent_account_code,
+                        tiu.unblended_cost AS unblended_cost,
+                        tiu.unblended_rate,
+                        ti.code AS instance_id,
+                        ti.name AS instance_name,
+                        mp.code AS product_code,
+                        mp.name AS product_name,
+                        LOWER(mps.code) AS product_spec_code,
+                        mps.specification AS product_spec_desc
+                    FROM master.m_accounts ma
+                    LEFT JOIN master.m_accounts ma2 ON ma.parent_account_id = ma2.id
+                    LEFT JOIN master.m_account_discount_programs madp ON ma.id = madp.account_id 
+                    LEFT JOIN master.m_discount_programs mdp ON madp.discount_program_id = mdp.id
+                    LEFT JOIN (
+                        SELECT 
+                            madp2.account_id AS parent_account_id,
+                            mdp2.code AS code,
+                            madp2.min_value
+                        FROM master.m_account_discount_programs madp2
+                        INNER JOIN master.m_discount_programs mdp2 ON madp2.discount_program_id = mdp2.id
+                        WHERE madp2.is_forwarded = TRUE
+                    ) parent_discount_program ON ma.parent_account_id = parent_discount_program.parent_account_id
+                    INNER JOIN transaction.t_instances ti ON ti.account_id = ma.id
+                    INNER JOIN product.m_product_specifications mps ON mps.id = ti.product_spec_id
+                    INNER JOIN product.m_products mp ON mp.id = ti.product_id
+                    INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
+                    WHERE (ma.id = '{parent_account_id}' OR ma.parent_account_id = '{parent_account_id}')
+                    AND tiu.period = '{current_year_month}'
+                )
+                UNION ALL
+                (
+                    SELECT 
+                        tiu.id AS transaction_id,
+                        tiu.period,
+                        'AWS' AS entity,
+                        CASE 
+                            WHEN COALESCE(parent_discount_program.code, mdp.code) IS NOT NULL THEN 
+                                INITCAP(LOWER(COALESCE(parent_discount_program.code, mdp.code))) || ' Discount'
+                            ELSE 
+                                NULL
+                        END AS usage_type,
+                        ma.code AS account_code,
+                        ma.name AS account_name,
+                        COALESCE(ma2.code, ma.code) AS parent_account_code,
                         CASE 
                             WHEN COALESCE(parent_discount_program.min_value, madp.min_value) IS NOT NULL THEN 
                                 -1 * tiu.unblended_cost * (COALESCE(parent_discount_program.min_value, madp.min_value) / 100)
                             ELSE 
                                 0
-                        END
-                    ) AS expenditure
-                FROM master.m_accounts ma
-                LEFT JOIN master.m_accounts ma2 ON ma.parent_account_id = ma2.id
-                LEFT JOIN master.m_account_types mat ON ma.account_type_id = mat.id
-                LEFT JOIN master.m_account_discount_programs madp ON ma.id = madp.account_id 
-                LEFT JOIN master.m_discount_programs mdp ON madp.discount_program_id = mdp.id
-                LEFT JOIN (
+                        END AS unblended_cost,
+                        NULL AS unblended_rate,
+                        ti.code AS instance_id,
+                        ti.name AS instance_name,
+                        mp.code AS product_code,
+                        mp.name AS product_name,
+                        NULL AS product_spec_code,
+                        NULL AS product_spec_desc
+                    FROM master.m_accounts ma
+                    LEFT JOIN master.m_accounts ma2 ON ma.parent_account_id = ma2.id
+                    LEFT JOIN master.m_account_discount_programs madp ON ma.id = madp.account_id 
+                    LEFT JOIN master.m_discount_programs mdp ON madp.discount_program_id = mdp.id
+                    LEFT JOIN (
+                        SELECT 
+                            madp2.account_id AS parent_account_id,
+                            mdp2.code AS code,
+                            madp2.min_value
+                        FROM master.m_account_discount_programs madp2
+                        INNER JOIN master.m_discount_programs mdp2 ON madp2.discount_program_id = mdp2.id
+                        WHERE madp2.is_forwarded = TRUE
+                    ) parent_discount_program ON ma.parent_account_id = parent_discount_program.parent_account_id
+                    INNER JOIN transaction.t_instances ti ON ti.account_id = ma.id
+                    INNER JOIN product.m_products mp ON mp.id = ti.product_id
+                    INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
+                    WHERE (ma.id = '{parent_account_id}' OR ma.parent_account_id = '{parent_account_id}')
+                    AND tiu.period = '{current_year_month}'
+                )
+                UNION ALL
+                (
                     SELECT 
-                        madp2.account_id AS parent_account_id,
-                        mdp2.code AS code,
-                        madp2.min_value
-                    FROM master.m_account_discount_programs madp2
-                    INNER JOIN master.m_discount_programs mdp2 ON madp2.discount_program_id = mdp2.id
-                    WHERE madp2.is_forwarded = TRUE
-                ) parent_discount_program ON ma.parent_account_id = parent_discount_program.parent_account_id
-                INNER JOIN transaction.t_instances ti ON ti.account_id = ma.id
-                INNER JOIN product.m_products mp ON mp.id = ti.product_id
-                INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
-                where (ma.id = '{parent_account_id}' or ma.parent_account_id = '{parent_account_id}')
-                and tiu.period = '{current_year_month}'
+                        tiu.id AS transaction_id,
+                        tiu.period,
+                        'AWS Marketplace' AS entity,
+                        'Marketplace' AS usage_type,
+                        ma.code AS account_code,
+                        ma.name AS account_name,
+                        COALESCE(ma2.code, ma.code) AS parent_account_code,
+                        tiu.unblended_cost AS unblended_cost,
+                        NULL AS unblended_rate,
+                        ti.code AS instance_id,
+                        ti.name AS instance_name,
+                        mp.code AS product_code,
+                        mp.name AS product_name,
+                        NULL AS product_spec_code,
+                        NULL AS product_spec_desc
+                    FROM master.m_accounts ma
+                    LEFT JOIN master.m_accounts ma2 ON ma.parent_account_id = ma2.id
+                    INNER JOIN marketplace.t_instances ti ON ti.account_id = ma.id
+                    INNER JOIN marketplace.m_products mp ON mp.id = ti.product_id
+                    INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
+                    WHERE (ma.id = '{parent_account_id}' OR ma.parent_account_id = '{parent_account_id}')
+                    AND tiu.period = '{current_year_month}'
+                )
+                ORDER BY 
+                    account_code,
+                    entity,
+                    instance_id,
+                    usage_type;
     """
 
     transactions = db.execute_query(query, (parent_account_id,))
@@ -323,6 +390,14 @@ def get_current_period():
     current_period = f"{current_date.year}_{current_date.month:02}"
 
     return current_period
+
+def get_marketplace_intance_period():
+    print("Start function get_marketplace_intance_period")
+
+    try:
+        print()
+    except Exception as e:
+        print(f"Error in get_marketplace_intance_period: {f}")
 
 def main():
     print("Start project-1")

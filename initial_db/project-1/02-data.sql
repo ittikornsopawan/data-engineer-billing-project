@@ -197,3 +197,42 @@ VALUES
     ('INST_682545126939_3', 'Instance for true-online Product 3', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM product.m_products ORDER BY RANDOM() LIMIT 1), (SELECT id FROM product.m_product_specifications ORDER BY RANDOM() LIMIT 1), (SELECT id FROM project.t_projects WHERE account_id = (SELECT id FROM master.m_accounts WHERE code = '682545126939') LIMIT 1), (SELECT id FROM product.m_pricing_model ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active', 'System', current_timestamp),
     ('INST_682545126939_4', 'Instance for true-online Product 4', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM product.m_products ORDER BY RANDOM() LIMIT 1), (SELECT id FROM product.m_product_specifications ORDER BY RANDOM() LIMIT 1), (SELECT id FROM project.t_projects WHERE account_id = (SELECT id FROM master.m_accounts WHERE code = '682545126939') LIMIT 1), (SELECT id FROM product.m_pricing_model ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active', 'System', current_timestamp),
     ('INST_682545126939_5', 'Instance for true-online Product 5', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM product.m_products ORDER BY RANDOM() LIMIT 1), (SELECT id FROM product.m_product_specifications ORDER BY RANDOM() LIMIT 1), (SELECT id FROM project.t_projects WHERE account_id = (SELECT id FROM master.m_accounts WHERE code = '682545126939') LIMIT 1), (SELECT id FROM product.m_pricing_model ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active', 'System', current_timestamp);
+
+-- marketplace
+INSERT INTO marketplace.m_vendors (code, name, row_status)
+VALUES 
+    ('TREND_MICRO', 'Trend Micro','active'),
+    ('CROWDSTRIKE', 'CrowdStrike', 'active'),
+    ('SPLUNK', 'Splunk', 'active'),
+    ('SNOWFLAKE', 'Snowflake', 'active'),
+    ('DATABRICKS', 'Databricks', 'active'),
+    ('H2O', 'H2O.ai','active');
+
+-- Insert mock data into marketplace.m_products for AWS Marketplace products
+INSERT INTO marketplace.m_products (code, name, description, product_category_id, vendor_id, price_per_unit, unit, row_status)
+VALUES
+    ('TREND_MICRO_CLOUD_ONE', 'Trend Micro Cloud One', 'Security and compliance service.', (SELECT id FROM product.m_product_categories WHERE code = 'SECURITY'), (SELECT id FROM marketplace.m_vendors WHERE code = 'TREND_MICRO'), 0.05, 'GB', 'active'),
+    ('CROWDSTRIKE_FALCON', 'CrowdStrike Falcon', 'Cloud-native endpoint protection.', (SELECT id FROM product.m_product_categories WHERE code = 'SECURITY'), (SELECT id FROM marketplace.m_vendors WHERE code = 'CROWDSTRIKE'), 0.1, 'Endpoint', 'active'),
+    ('SPLUNK_CLOUD', 'Splunk Cloud', 'SIEM for security event monitoring.', (SELECT id FROM product.m_product_categories WHERE code = 'ANALYTICS'), (SELECT id FROM marketplace.m_vendors WHERE code = 'SPLUNK'), 0.2, 'GB', 'active'),
+    ('SNOWFLAKE', 'Snowflake', 'Data warehousing solution.', (SELECT id FROM product.m_product_categories WHERE code = 'DATABASE'), (SELECT id FROM marketplace.m_vendors WHERE code = 'SNOWFLAKE'), 0.3, 'TB', 'active'),
+    ('DATABRICKS', 'Databricks', 'Analytics and AI platform.', (SELECT id FROM product.m_product_categories WHERE code = 'ANALYTICS'), (SELECT id FROM marketplace.m_vendors WHERE code = 'DATABRICKS'), 0.4, 'TB', 'active'),
+    ('H2O_AI', 'H2O.ai', 'AI and machine learning platform.', (SELECT id FROM product.m_product_categories WHERE code = 'ML_AI'), (SELECT id FROM marketplace.m_vendors WHERE code = 'H2O'), 0.15, 'Model', 'active');
+
+INSERT INTO marketplace.t_instances (code, name, account_id, product_id, effective_date, expired_date, row_status)
+VALUES 
+    ('INST_AG_001', 'ascend-money-instance-1', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_002', 'ascend-money-instance-2', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_003', 'ascend-commerce-instance-1', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_004', 'ascend-commerce-instance-2', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_005', 'true-idc-instance-1', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_006', 'true-idc-instance-2', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_007', 'ascend-bit-instance-1', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_008', 'ascend-bit-instance-2', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_009', 'egg-digital-instance-1', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_010', 'egg-digital-instance-2', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_001', 'truemove-h-instance-1', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_002', 'truemove-h-instance-2', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_003', 'true-visions-instance-1', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_004', 'true-visions-instance-2', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_005', 'true-online-instance-1', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_006', 'true-online-instance-2', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active');

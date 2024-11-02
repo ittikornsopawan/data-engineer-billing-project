@@ -212,3 +212,72 @@ CREATE INDEX IF NOT EXISTS idx_account_id ON transaction.t_instances(account_id)
 CREATE INDEX IF NOT EXISTS idx_product_id ON transaction.t_instances(product_id);
 CREATE INDEX IF NOT EXISTS idx_product_spec_id ON transaction.t_instances(product_spec_id);
 CREATE INDEX IF NOT EXISTS idx_pricing_model_id ON transaction.t_instance_usages(pricing_model_id);
+
+
+-- Marketplace
+CREATE SCHEMA IF NOT EXISTS marketplace;
+
+CREATE TABLE IF NOT EXISTS marketplace.m_vendors (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    code VARCHAR(32) NOT NULL UNIQUE,
+    name VARCHAR(128) NOT NULL,
+    row_status enum_row_status DEFAULT 'active',
+    created_by VARCHAR(64) DEFAULT 'System',
+    created_date TIMESTAMP DEFAULT current_timestamp,
+    updated_by VARCHAR(64),
+    updated_date TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS marketplace.m_products (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    code VARCHAR(64) NOT NULL UNIQUE,
+    name VARCHAR(256) NOT NULL,
+    description TEXT,
+    product_category_id UUID NOT NULL REFERENCES product.m_product_categories(id) ON DELETE CASCADE,
+    vendor_id UUID NOT NULL REFERENCES marketplace.m_vendors(id) ON DELETE CASCADE,
+    price_per_unit DECIMAL(18, 12) DEFAULT 0.0,
+    unit VARCHAR(64) NOT NULL,
+    row_status enum_row_status DEFAULT 'active',
+    created_by VARCHAR(64) DEFAULT 'System',
+    created_date TIMESTAMP DEFAULT current_timestamp,
+    updated_by VARCHAR(64),
+    updated_date TIMESTAMP,
+    deleted_at TIMESTAMP,
+    UNIQUE (code)
+);
+
+CREATE TABLE IF NOT EXISTS marketplace.t_instances (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    code VARCHAR(32) NOT NULL UNIQUE,
+    name VARCHAR(128) NOT NULL,
+    account_id UUID NOT NULL REFERENCES master.m_accounts(id) ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES marketplace.m_products(id) ON DELETE CASCADE,
+    effective_date TIMESTAMP DEFAULT current_timestamp,
+    expired_date TIMESTAMP,
+    row_status enum_row_status DEFAULT 'active',
+    created_by VARCHAR(64) DEFAULT 'System',
+    created_date TIMESTAMP DEFAULT current_timestamp,
+    updated_by VARCHAR(64),
+    updated_date TIMESTAMP,
+    deleted_at TIMESTAMP,
+    CONSTRAINT check_dates CHECK (expired_date IS NULL OR expired_date >= effective_date)
+);
+
+CREATE TABLE IF NOT EXISTS marketplace.t_instance_usages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    instance_id UUID NOT NULL REFERENCES marketplace.t_instances(id) ON DELETE CASCADE,
+    period VARCHAR(16) NOT NULL,
+    period_begin_date TIMESTAMP NOT NULL,
+    period_end_date TIMESTAMP NOT NULL,
+    usage DECIMAL(24, 12) DEFAULT NULL,
+    usage_date TIMESTAMP DEFAULT current_timestamp,
+    unblended_cost DECIMAL(24, 12) DEFAULT NULL,
+    unblended_rate DECIMAL(24, 12) DEFAULT NULL,
+    row_status enum_row_status DEFAULT 'active',
+    created_by VARCHAR(64) DEFAULT 'System',
+    created_date TIMESTAMP DEFAULT current_timestamp,
+    updated_by VARCHAR(64),
+    updated_date TIMESTAMP,
+    deleted_at TIMESTAMP
+);
