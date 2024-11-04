@@ -1,7 +1,3 @@
-# Preparing the complete markdown content with the correct command for Docker Compose
-
-complete_md_content_corrected = """
-
 # Data Engineering Project Documentation
 
 ## Overview
@@ -35,12 +31,24 @@ This document provides an overview of the data engineering project consisting of
 - **Type**: ETL Service
 - **Description**: This service is responsible for Extracting, Transforming, and Loading (ETL) data to ensure it is ready for analysis and reporting.
 
-## Workflow
+## Workflow Diagram
 
-1. **Data Generation**: The project-1 service generates mockup transaction data.
+The following diagram illustrates the workflow of the data engineering project:
+
+```mermaid
+graph TD;
+    A[Project-1 Service (Python)] -->|Generates Mockup Data| B[MinIO (File Storage)];
+    B -->|Stores .csv.gz Files| C[Process Service (ETL)];
+    C -->|Extracts, Transforms, Loads| D[db-process (Database)];
+    A -->|Maintains Raw Data| E[db-project-1 (Database)];
+```
+
+### Workflow Steps
+
+1. **Data Generation**: The Project-1 service generates mockup transaction data.
 2. **Data Storage**: The generated data is exported as CSV.gz files and stored in MinIO.
-3. **Data Processing**: The db-process database is utilized for processing the data through the ETL service.
-4. **Data Management**: The ETL service manages data transformation and loading into the appropriate data stores for analysis.
+3. **Data Processing**: The Process service extracts, transforms, and loads data into the db-process database.
+4. **Data Management**: The db-project-1 database maintains raw transaction data, if necessary.
 
 ## Installation and Setup
 
@@ -86,7 +94,6 @@ Ensure you have Docker and Docker Compose installed on your machine.
    - In the terminal, run:
      ```bash
      docker --version
-     docker-compose --version
      ```
 
 #### For Linux
@@ -105,14 +112,13 @@ Ensure you have Docker and Docker Compose installed on your machine.
    - Open a terminal and run:
      ```bash
      docker --version
-     docker-compose --version
      ```
 
 ## Running the Project
 
 1. Clone the project repository or create a directory for your project.
 2. Navigate to the project directory.
-3. Create a `docker-compose.yml` file with the necessary configurations for your services.
+3. Create a `docker-compose.yaml` file with the necessary configurations for your services.
 4. Run the following command to start all services:
 
    ```bash
@@ -128,11 +134,3 @@ Ensure you have Docker and Docker Compose installed on your machine.
 
 This project architecture supports efficient data generation, storage, and processing, enabling effective data management and analysis for project-1. Follow the installation instructions to set up your environment using Docker Compose.
 """
-
-# Updating the file name to README.md and saving the markdown content
-
-readme_file_path = '/mnt/data/README.md'
-with open(readme_file_path, 'w') as file:
-file.write(complete_md_content_corrected)
-
-readme_file_path
