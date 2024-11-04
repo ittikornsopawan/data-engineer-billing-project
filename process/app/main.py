@@ -1,3 +1,4 @@
+import time
 import csv
 import gzip
 import os
@@ -9,6 +10,10 @@ import shutil
 from app.common.dbContext import dbContext
 from app.common.minioClient import minioClient
 from app.common.processUtil import processUtil
+
+DELAY_SECONDS = 30
+print(f"Starting ETL process with a delay of {DELAY_SECONDS} seconds to ensure dependencies are ready.")
+time.sleep(DELAY_SECONDS)
 
 # function: project-1
 def download_files(minio = minioClient()):
@@ -39,6 +44,18 @@ def unzip_csv_gz(gz_file_path, output_file_path):
     except Exception as e:
         print(f"Error unzipping file '{gz_file_path}': {e}")
 
+def etl_project_1(db=dbContext(), isClose = False):
+    print("Start etl_project_1")
+
+    try:
+        print()
+    except Exception as e:
+        print(f"Error unzip_csv_gz: {e}")
+    finally:
+        if isClose == True:
+            db.close()
+
+
 # process
 def project1_process():
     print(f"Start project1_process")
@@ -61,12 +78,13 @@ def project1_process():
                     csvFilePath.append(output_file_path)
 
         process.push_csv_to_db(csv_file_paths=csvFilePath)
+        
+        etl_project_1()
     except Exception as e:
         print(f"Error main: {e}")
     finally:
         db.close()
         print(f"End project1_process")
-
 
 def main():
     project1_process()
