@@ -37,10 +37,10 @@ The following diagram illustrates the workflow of the data engineering project:
 
 ```mermaid
 graph TD;
-    A[Project-1 Service Python] -->|Generates Mockup Data| B[MinIO (File Storage)];
-    B -->|Stores .csv.gz Files| C[Process Service (ETL)];
-    C -->|Extracts, Transforms, Loads| D[db-process (Database)];
-    A -->|Maintains Raw Data| E[db-project-1 (Database)];
+    A[Project-1 Service Python] -->|Generates Mockup Data| B[MinIO: File Storage];
+    B -->|Stores .csv.gz Files| C[Process Service: ETL];
+    C -->|Extracts, Transforms, Loads| D[db-process: Database];
+    A -->|Maintains Raw Data| E[db-project-1: Database];
 ```
 
 ### Workflow Steps
