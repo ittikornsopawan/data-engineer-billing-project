@@ -1,4 +1,20 @@
 services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    networks:
+      - minio-network
+    restart: on-failure
+
   db-project-1:
     image: postgres:13
     environment:
@@ -34,19 +50,25 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - db-project-1
+      - minio
     environment:
       DB_HOST: db-project-1
       DB_USER: project1_user
       DB_PASSWORD: project1_password
       DB_NAME: project1_db
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+      MINIO_BUCKET_NAME: project-1-bucket
     networks:
       - backend
+      - minio-network
     volumes:
       - ./project-1/app/transactions:/usr/src/app/transactions
     command: python /usr/src/app/app/main.py
     restart: on-failure
 
-  process-service:
+  process:
     build:
       context: ./process
       dockerfile: Dockerfile
@@ -72,7 +94,9 @@ services:
 
 networks:
   backend:
+  minio-network:
 
 volumes:
   project1_data:
   process_data:
+  minio_data:

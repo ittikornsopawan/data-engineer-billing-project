@@ -253,7 +253,7 @@ CREATE TABLE IF NOT EXISTS marketplace.t_instances (
     name VARCHAR(128) NOT NULL,
     account_id UUID NOT NULL REFERENCES master.m_accounts(id) ON DELETE CASCADE,
     product_id UUID NOT NULL REFERENCES marketplace.m_products(id) ON DELETE CASCADE,
-    effective_date TIMESTAMP DEFAULT current_timestamp,
+    effectived_date TIMESTAMP DEFAULT current_timestamp,
     expired_date TIMESTAMP,
     row_status enum_row_status DEFAULT 'active',
     created_by VARCHAR(64) DEFAULT 'System',
@@ -261,7 +261,7 @@ CREATE TABLE IF NOT EXISTS marketplace.t_instances (
     updated_by VARCHAR(64),
     updated_date TIMESTAMP,
     deleted_at TIMESTAMP,
-    CONSTRAINT check_dates CHECK (expired_date IS NULL OR expired_date >= effective_date)
+    CONSTRAINT check_dates CHECK (expired_date IS NULL OR expired_date >= effectived_date)
 );
 
 CREATE TABLE IF NOT EXISTS marketplace.t_instance_usages (

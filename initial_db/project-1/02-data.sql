@@ -218,7 +218,7 @@ VALUES
     ('DATABRICKS', 'Databricks', 'Analytics and AI platform.', (SELECT id FROM product.m_product_categories WHERE code = 'ANALYTICS'), (SELECT id FROM marketplace.m_vendors WHERE code = 'DATABRICKS'), 0.4, 'TB', 'active'),
     ('H2O_AI', 'H2O.ai', 'AI and machine learning platform.', (SELECT id FROM product.m_product_categories WHERE code = 'ML_AI'), (SELECT id FROM marketplace.m_vendors WHERE code = 'H2O'), 0.15, 'Model', 'active');
 
-INSERT INTO marketplace.t_instances (code, name, account_id, product_id, effective_date, expired_date, row_status)
+INSERT INTO marketplace.t_instances (code, name, account_id, product_id, effectived_date, expired_date, row_status)
 VALUES 
     ('INST_AG_001', 'ascend-money-instance-1', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
     ('INST_AG_002', 'ascend-money-instance-2', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
