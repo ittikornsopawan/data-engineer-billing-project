@@ -1,6 +1,0 @@
-DB_TYPE = 'postgresql'
-DB_USERNAME = 'project1_user'
-DB_PASSWORD = 'project1_password'
-DB_HOST = 'localhost'
-DB_PORT = '5431'
-DB_NAME = 'project1_db'

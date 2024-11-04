@@ -1,17 +1,14 @@
-# Use the official Python image from the Docker Hub
 FROM python:3.9-slim
 
-# Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy the current directory contents into the container at /usr/src/app
-COPY app/ .
-
-# Copy the requirements.txt file into the container
-COPY requirements.txt .
-
-# Install any needed packages specified in requirements.txt
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run main.py when the container launches
-CMD ["python", "main.py"]
+COPY app/ ./app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="/usr/src/app/app:${PYTHONPATH}"
+
+CMD ["python", "-m", "app.main"]
