@@ -37,18 +37,21 @@ The following diagram illustrates the workflow of the data engineering project:
 
 ```mermaid
 graph TD;
-    A[Project-1 Service Python] -->|Generates Mockup Data| B[MinIO: File Storage];
-    B -->|Stores .csv.gz Files| C[Process Service: ETL];
-    C -->|Extracts, Transforms, Loads| D[db-process: Database];
-    A -->|Maintains Raw Data| E[db-project-1: Database];
+    A[Initial Schema and Data for db-project-1] --> B[Data Generation by project-1];
+    B --> C[Create CSV File];
+    C --> D[Storing Data in MinIO];
+    D --> E[ETL Process];
+    E --> F[Storing Processed Data in db-process];
 ```
 
 ### Workflow Steps
 
-1. **Data Generation**: The Project-1 service generates mockup transaction data.
-2. **Data Storage**: The generated data is exported as CSV.gz files and stored in MinIO.
-3. **Data Processing**: The Process service extracts, transforms, and loads data into the db-process database.
-4. **Data Management**: The db-project-1 database maintains raw transaction data, if necessary.
+- **1**: Represents the initial step where the database schema and data for `db-project-1` are set up.
+- **2**: Indicates the data generation phase by the `project-1` service.
+- **3**: Shows the creation of the CSV file from the generated data.
+- **4**: Represents the storage of the CSV file in MinIO.
+- **5**: Indicates the ETL process where the data is extracted, transformed, and loaded.
+- **6**: Final step where the processed data is stored in `db-process`.
 
 ## Installation and Setup
 
