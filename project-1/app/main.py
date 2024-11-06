@@ -9,7 +9,7 @@ from app.common.dbContext import dbContext
 from app.common.minioClient import minioClient
 
 # function
-def get_random_percentage():
+def getRandomPercentage():
     rnd = random.uniform(1, 100)
     
     if rnd % 25 == 0: # Abnormally 4 of 100
@@ -17,28 +17,28 @@ def get_random_percentage():
         
     return random.uniform(0.02, 0.05) # normally 96 of 100
 
-def get_current_period():
-    current_date = datetime.now()
-    current_period = f"{current_date.year}_{current_date.month:02}"
+def getCurrentPeriod():
+    currentDate = datetime.now()
+    currentPeriod = f"{currentDate.year}_{currentDate.month:02}"
 
-    return current_period
+    return currentPeriod
 
-def get_date_range(period):
+def getDateRange(period):
     year, month = map(int, period.split('_'))
-    first_date = datetime(year, month, 1)
+    firstDate = datetime(year, month, 1)
     
     if month == 12:
-        last_date = datetime(year + 1, 1, 1) - timedelta(days=1)
+        lastDate = datetime(year + 1, 1, 1) - timedelta(days=1)
     else:
-        last_date = datetime(year, month + 1, 1) - timedelta(days=1)
+        lastDate = datetime(year, month + 1, 1) - timedelta(days=1)
     
-    return first_date, last_date
+    return firstDate, lastDate
 
 # context
 
-def get_instances(db = dbContext(), isClose = False):
+def getInstances(db = dbContext(), isClose = False):
     try:
-        instances = db.execute_query("""
+        instances = db.executeQuery("""
             select ti.* 
             from transaction.t_instances ti
             where ti.effectived_date <= current_timestamp
@@ -47,55 +47,55 @@ def get_instances(db = dbContext(), isClose = False):
 
         return instances
     except Exception as e:
-        print(f"error in get_instances: {e}")
+        print(f"error in getInstances: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def get_instance_period(db = dbContext(), current_year_month = None, instance_id = None, isClose = False):
-    print("Starting function: get_instance_period")
+def getInstancePeriod(db = dbContext(), period = None, instanceId = None, isClose = False):
+    print("Starting function: getInstancePeriod")
 
     try:
-        if current_year_month == None:
-            current_year_month = get_current_period()
+        if period == None:
+            period = getCurrentPeriod()
 
-        instance_usage = db.execute_query(f"""
+        instanceUsage = db.executeQuery(f"""
             select * from transaction.t_instance_usages tiu 
-            where tiu.period = '{current_year_month}'
-            and tiu.instance_id = '{instance_id}'
+            where tiu.period = '{period}'
+            and tiu.instance_id = '{instanceId}'
         """)
 
-        return instance_usage
+        return instanceUsage
     except Exception as e:
-        print(f"get_instance_period: {e}")
+        print(f"getInstancePeriod: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def gen_instance_period(db = dbContext(), current_year_month = None, instance = None, isClose = False):
-    print("Starting function: gen_instance_period")
+def genInstancePeriod(db = dbContext(), period = None, instance = None, isClose = False):
+    print("Starting function: genInstancePeriod")
 
     try:
-        if current_year_month is None:
-            current_year_month = get_current_period()
+        if period is None:
+            period = getCurrentPeriod()
 
-        pricing_model = get_instance_pricing_model(db=db, instance=instance)
+        pricing_model = getInstancePricingModel(db=db, instance=instance)
 
-        first_date, last_date = get_date_range(current_year_month)
+        firstDate, lastDate = getDateRange(period)
 
-        instance_usage = {
+        instanceUsage = {
             "instance_id": instance.id,
             "pricing_model_id": instance.pricing_model_id,
-            "period": current_year_month,
-            "period_begin_date": first_date,
-            "period_end_date": last_date,
+            "period": period,
+            "period_begin_date": firstDate,
+            "period_end_date": lastDate,
             "usage": Decimal('0'),
             "usage_date": datetime.now(),
             "unblended_cost": Decimal('0'),
             "unblended_rate": Decimal(pricing_model[0].price_per_unit)
         }
 
-        insert_query = """
+        query = """
         INSERT INTO transaction.t_instance_usages (
             instance_id,
             pricing_model_id,
@@ -112,71 +112,71 @@ def gen_instance_period(db = dbContext(), current_year_month = None, instance = 
         """
 
         params = (
-            instance_usage["instance_id"],
-            instance_usage["pricing_model_id"],
-            instance_usage["period"],
-            instance_usage["period_begin_date"],
-            instance_usage["period_end_date"],
-            instance_usage["usage"],
-            instance_usage["usage_date"],
-            instance_usage["unblended_cost"],
-            instance_usage["unblended_rate"],
+            instanceUsage["instance_id"],
+            instanceUsage["pricing_model_id"],
+            instanceUsage["period"],
+            instanceUsage["period_begin_date"],
+            instanceUsage["period_end_date"],
+            instanceUsage["usage"],
+            instanceUsage["usage_date"],
+            instanceUsage["unblended_cost"],
+            instanceUsage["unblended_rate"],
         )
 
-        db.execute_non_query(insert_query, params)
+        db.executeNonQuery(query, params)
         print("Instance usage inserted successfully.")
     except Exception as e:
-        print(f"Error gen_instance_period: {e}")
+        print(f"Error genInstancePeriod: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def get_instance_pricing_model(db = dbContext(), instance = None, isClose = False):
-    print("Start function: get_instance_pricing_model")
+def getInstancePricingModel(db = dbContext(), instance = None, isClose = False):
+    print("Start function: getInstancePricingModel")
 
     try:
-        pricing_model = db.execute_query(f"""
+        pricingModel = db.executeQuery(f"""
             select * from product.m_pricing_model mpm 
             where mpm.id = '{instance.pricing_model_id}'
         """)
 
-        return pricing_model
+        return pricingModel
     except Exception as e:
-        print(f"Error get_instance_pricing_model: {e}")
+        print(f"Error getInstancePricingModel: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def update_instance_period(db = dbContext(), current_year_month = None, instance = None, isClose = False):
-    print("Starting function: update_instance_period")
+def updateInstancePeriod(db = dbContext(), period = None, instance = None, isClose = False):
+    print("Starting function: updateInstancePeriod")
 
     try:
-        if current_year_month is None:
-            current_year_month = get_current_period()
+        if period is None:
+            period = getCurrentPeriod()
 
-        instance_usage = get_instance_usage(db=db, current_year_month=current_year_month, instance=instance)
+        instanceUsage = getInstanceUsage(db=db, period=period, instance=instance)
         
-        if not instance_usage:
+        if not instanceUsage:
             print("No instance usage found for the provided parameters.")
             return
         
-        instance = instance_usage[0]
-        instance_dict = {
+        instance = instanceUsage[0]
+        instanceDict = {
             "id": instance.id,
             "usage": instance.usage,
             "unblended_rate": instance.unblended_rate,
             "unblended_cost": instance.unblended_cost
         }
 
-        if instance_dict["usage"] == Decimal('0E-12') or instance_dict["usage"] == Decimal('0'):
-            instance_dict["usage"] = Decimal(random.uniform(1.0, 100.0))
+        if instanceDict["usage"] == Decimal('0E-12') or instanceDict["usage"] == Decimal('0'):
+            instanceDict["usage"] = Decimal(random.uniform(1.0, 100.0))
         else:
-            random_percentage = Decimal(get_random_percentage())
-            instance_dict["usage"] *= (1 + random_percentage)
+            randomPercentage = Decimal(getRandomPercentage())
+            instanceDict["usage"] *= (1 + randomPercentage)
 
-        instance_dict["unblended_cost"] = instance_dict["unblended_rate"] * instance_dict["usage"]
+        instanceDict["unblended_cost"] = instanceDict["unblended_rate"] * instanceDict["usage"]
 
-        update_query = """
+        query = """
         UPDATE transaction.t_instance_usages
         SET 
             usage = %s, 
@@ -186,23 +186,23 @@ def update_instance_period(db = dbContext(), current_year_month = None, instance
         AND period = %s
         """
 
-        update_params = (instance_dict["usage"], instance_dict["unblended_cost"], instance_dict["id"], current_year_month)
-        db.execute_non_query(update_query, update_params)
+        params = (instanceDict["usage"], instanceDict["unblended_cost"], instanceDict["id"], period)
+        db.executeNonQuery(query, params)
         print("Instance usage updated successfully.")
     except Exception as e:
-        print(f"Error in update_instance_period: {e}")
+        print(f"Error in updateInstancePeriod: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def get_instance_usage(db = dbContext(), current_year_month = None, instance = None, isClose = False):
-    print("Starting function: get_instance_usage")
+def getInstanceUsage(db = dbContext(), period = None, instance = None, isClose = False):
+    print("Starting function: getInstanceUsage")
 
     try:
-        if current_year_month is None:
-            current_year_month = get_current_period()
+        if period is None:
+            period = getCurrentPeriod()
 
-        insert_query = """
+        query = """
             SELECT *
             FROM transaction.t_instance_usages
             WHERE instance_id = %s 
@@ -211,19 +211,19 @@ def get_instance_usage(db = dbContext(), current_year_month = None, instance = N
 
         params = (
             instance.id,
-            current_year_month
+            period
         )
 
-        return db.execute_query(insert_query, params)
+        return db.executeQuery(query, params)
     except Exception as e:
-        print("Error in get_instance_usage: {e}")
+        print("Error in getInstanceUsage: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def get_account_transactions(db = dbContext(), isClose = False):
+def getAccountTransactions(db = dbContext(), isClose = False):
     try:
-        results = db.execute_query("""
+        results = db.executeQuery("""
             select 
                 ti.id,
                 ti.code,
@@ -248,34 +248,40 @@ def get_account_transactions(db = dbContext(), isClose = False):
 
         return results
     except Exception as e:
-        print(f"Error in get_account_transactions: {e}")
+        print(f"Error in getAccountTransactions: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id = None, parent_account_code = None, isClose = False):
-    print("Start function export_to_csv")
+def exportFile(db = dbContext(), period = None, parentAccountId = None, parentAccountCode = None, isClose = False):
+    print("Start function exportFile")
 
     try:
-        if current_year_month == None:
-            current_year_month = get_current_period()
+        if period == None:
+            period = getCurrentPeriod()
 
         query = f"""
                     (
                         SELECT 
-                            tiu.id AS transaction_id,
+                            tiu.id AS line_item_id,
+                            concat(tiu.period_begin_date, '/', tiu.period_end_date) as time_interval,
                             tiu.period,
-                            'AWS' AS entity,
-                            'Usage' AS usage_type,
-                            ma.code AS account_code,
-                            ma.name AS account_name,
-                            COALESCE(ma2.code, ma.code) AS parent_account_code,
+                            'AWS' AS billing_entity,
+                            'Usage' AS line_item_type,
+                            COALESCE(ma2.code, ma.code) AS payer_account_id,
+                            COALESCE(ma2.name, ma.name) AS payer_account_name,
+                            tiu.period_begin_date as period_start_date,
+                            tiu.period_end_date as period_end_date,
+                            ma.code AS usage_account_id,
+                            ma.name AS usage_account_name,
+                            tiu.usage as usage_amount,
                             tiu.unblended_cost AS unblended_cost,
                             tiu.unblended_rate,
                             ti.code AS instance_id,
                             ti.name AS instance_name,
                             mp.code AS product_code,
                             mp.name AS product_name,
+                            mps.unit as usage_type,
                             LOWER(mps.code) AS product_spec_code,
                             mps.specification AS product_spec_desc
                         FROM master.m_accounts ma
@@ -295,24 +301,29 @@ def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id
                         INNER JOIN product.m_product_specifications mps ON mps.id = ti.product_spec_id
                         INNER JOIN product.m_products mp ON mp.id = ti.product_id
                         INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
-                        WHERE (ma.id = '{parent_account_id}' OR ma.parent_account_id = '{parent_account_id}')
-                        AND tiu.period = '{current_year_month}'
+                        WHERE (ma.id = '{parentAccountId}' OR ma.parent_account_id = '{parentAccountId}')
+                        AND tiu.period = '{period}'
                     )
                     UNION ALL
                     (
                         SELECT 
-                            tiu.id AS transaction_id,
+                            tiu.id AS line_item_id,
+                            concat(tiu.period_begin_date, '/', tiu.period_end_date) as time_interval,
                             tiu.period,
-                            'AWS' AS entity,
+                            'AWS' AS billing_entity,
                             CASE 
                                 WHEN COALESCE(parent_discount_program.code, mdp.code) IS NOT NULL THEN 
                                     INITCAP(LOWER(COALESCE(parent_discount_program.code, mdp.code))) || ' Discount'
                                 ELSE 
                                     NULL
-                            END AS usage_type,
-                            ma.code AS account_code,
-                            ma.name AS account_name,
-                            COALESCE(ma2.code, ma.code) AS parent_account_code,
+                            END AS line_item_type,
+                            COALESCE(ma2.code, ma.code) AS payer_account_id,
+                            COALESCE(ma2.name, ma.name) AS payer_account_name,
+                            tiu.period_begin_date as period_start_date,
+                            tiu.period_end_date as period_end_date,
+                            ma.code AS usage_account_id,
+                            ma.name AS usage_account_name,
+                            tiu.usage as usage_amount,
                             CASE 
                                 WHEN COALESCE(parent_discount_program.min_value, madp.min_value) IS NOT NULL THEN 
                                     -1 * tiu.unblended_cost * (COALESCE(parent_discount_program.min_value, madp.min_value) / 100)
@@ -324,6 +335,7 @@ def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id
                             ti.name AS instance_name,
                             mp.code AS product_code,
                             mp.name AS product_name,
+                            NULL as usage_type,
                             NULL AS product_spec_code,
                             NULL AS product_spec_desc
                         FROM master.m_accounts ma
@@ -342,25 +354,31 @@ def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id
                         INNER JOIN transaction.t_instances ti ON ti.account_id = ma.id
                         INNER JOIN product.m_products mp ON mp.id = ti.product_id
                         INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
-                        WHERE (ma.id = '{parent_account_id}' OR ma.parent_account_id = '{parent_account_id}')
-                        AND tiu.period = '{current_year_month}'
+                        WHERE (ma.id = '{parentAccountId}' OR ma.parent_account_id = '{parentAccountId}')
+                        AND tiu.period = '{period}'
                     )
                     UNION ALL
                     (
                         SELECT 
-                            tiu.id AS transaction_id,
+                            tiu.id AS line_item_id,
+                            concat(tiu.period_begin_date, '/', tiu.period_end_date) as time_interval,
                             tiu.period,
-                            'AWS Marketplace' AS entity,
-                            'Usage' AS usage_type,
-                            ma.code AS account_code,
-                            ma.name AS account_name,
-                            COALESCE(ma2.code, ma.code) AS parent_account_code,
+                            'AWS Marketplace' AS billing_entity,
+                            'Usage' AS line_item_type,
+                            COALESCE(ma2.code, ma.code) AS payer_account_id,
+                            COALESCE(ma2.name, ma.name) AS payer_account_name,
+                            tiu.period_begin_date as period_start_date,
+                            tiu.period_end_date as period_end_date,
+                            ma.code AS usage_account_id,
+                            ma.name AS usage_account_name,
+                            tiu.usage as usage_amount,
                             tiu.unblended_cost AS unblended_cost,
                             NULL AS unblended_rate,
                             ti.code AS instance_id,
                             ti.name AS instance_name,
                             mp.code AS product_code,
                             mp.name AS product_name,
+                            mp.unit as usage_type,
                             NULL AS product_spec_code,
                             NULL AS product_spec_desc
                         FROM master.m_accounts ma
@@ -368,138 +386,171 @@ def export_to_csv(db = dbContext(), current_year_month = None, parent_account_id
                         INNER JOIN marketplace.t_instances ti ON ti.account_id = ma.id
                         INNER JOIN marketplace.m_products mp ON mp.id = ti.product_id
                         INNER JOIN marketplace.t_instance_usages tiu ON tiu.instance_id = ti.id
-                        WHERE (ma.id = '{parent_account_id}' OR ma.parent_account_id = '{parent_account_id}')
-                        AND tiu.period = '{current_year_month}'
+                        WHERE (ma.id = '{parentAccountId}' OR ma.parent_account_id = '{parentAccountId}')
+                        AND tiu.period = '{period}'
+                    )
+                    UNION ALL
+                    (
+                        SELECT 
+                            tiu.id AS line_item_id,
+                            concat(tiu.period_begin_date, '/', tiu.period_end_date) as time_interval,
+                            tiu.period,
+                            'AWS' AS billing_entity,
+                            'Tax' AS line_item_type,
+                            COALESCE(ma2.code, ma.code) AS payer_account_id,
+                            COALESCE(ma2.name, ma.name) AS payer_account_name,
+                            tiu.period_begin_date as period_start_date,
+                            tiu.period_end_date as period_end_date,
+                            ma.code AS usage_account_id,
+                            ma.name AS usage_account_name,
+                            tiu.usage as usage_amount,
+                            ROUND(tiu.unblended_cost * 0.07, 12) AS unblended_cost,
+                            NULL AS unblended_rate,
+                            ti.code AS instance_id,
+                            ti.name AS instance_name,
+                            mp.code AS product_code,
+                            mp.name AS product_name,
+                            NULL as usage_type,
+                            NULL AS product_spec_code,
+                            NULL AS product_spec_desc
+                        FROM master.m_accounts ma
+                        LEFT JOIN master.m_accounts ma2 ON ma.parent_account_id = ma2.id
+                        INNER JOIN transaction.t_instances ti ON ti.account_id = ma.id
+                        INNER JOIN product.m_products mp ON mp.id = ti.product_id
+                        INNER JOIN transaction.t_instance_usages tiu ON tiu.instance_id = ti.id
+                        WHERE (ma.id = '{parentAccountId}' OR ma.parent_account_id = '{parentAccountId}')
+                        AND tiu.period = '{period}'
                     )
                     ORDER BY 
-                        account_code,
-                        entity,
+                        usage_account_id,
+                        billing_entity,
                         instance_id,
-                        usage_type;
+                        line_item_type;
         """
 
-        transactions = db.execute_query(query, (parent_account_id,))
+        transactions = db.executeQuery(query, (parentAccountId,))
 
 
         if transactions != None and len(transactions) > 0:
-            output_dir = "transactions"
-            os.makedirs(output_dir, exist_ok=True)
+            outputDir = "transactions"
+            os.makedirs(outputDir, exist_ok=True)
 
-            output_csv_path = f"{output_dir}/{parent_account_code}_CUR_{current_year_month}.csv"
-            print(f"Output CSV path: {output_csv_path}")
+            outputCsvPath = f"{outputDir}/{parentAccountCode}_CUR_{period}.csv"
+            print(f"Output CSV path: {outputCsvPath}")
 
-            output_gz_path = f"{output_csv_path}.gz"
-            print(f"Gzip path: {output_gz_path}")
+            outputGzPath = f"{outputCsvPath}.gz"
+            print(f"Gzip path: {outputGzPath}")
 
-            column_names = db.get_column_names(query)
+            columnNames = db.getColumnNames(query)
 
-            with open(output_csv_path, mode='w', newline='') as csv_file:
+            with open(outputCsvPath, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
-                writer.writerow(column_names)
+                writer.writerow(columnNames)
                 writer.writerows(transactions)
 
-            with open(output_csv_path, 'rb') as f_in, gzip.open(output_gz_path, 'wb') as f_out:
+            with open(outputCsvPath, 'rb') as f_in, gzip.open(outputGzPath, 'wb') as f_out:
                 f_out.writelines(f_in)
 
-            os.remove(output_csv_path)
+            os.remove(outputCsvPath)
 
-            file_name = os.path.basename(output_gz_path)
+            fileName = os.path.basename(outputGzPath)
 
             client = minioClient()
-            client.upload_file(output_gz_path, file_name)
+            client.upload_file(outputGzPath, fileName)
 
-            os.remove(output_gz_path)
+            os.remove(outputGzPath)
     except Exception as e:
-        print(f"Error export_to_csv:{e}")
+        print(f"Error exportFile:{e}")
     finally:
         if(isClose == True):
             db.close()
 
-def get_marketplace_intance(db = dbContext(), isClose = False):
-    print("Start function get_marketplace_intance")
+def getMarketplaceIntance(db = dbContext(), isClose = False):
+    print("Start function getMarketplaceIntance")
 
     try:
-        instance_usage = db.execute_query(f"""
+        query = f"""
             select * 
             from marketplace.t_instances ti
             where ti.effectived_date <= current_timestamp
             and (ti.expired_date >= current_timestamp or ti.expired_date is NULL)  
-        """)
+        """
 
-        return instance_usage
+        return db.executeQuery(query)
     except Exception as e:
-        print(f"get_instance_period: {e}")
+        print(f"getMarketplaceIntance: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def get_marketplace_product_by_id(db=dbContext(), product_id = None, isClose = False):
-    print("Start function get_marketplace_product_by_id")
+def getMarketplaceProductById(db=dbContext(), productId = None, isClose = False):
+    print("Start function getMarketplaceProductById")
 
     try:
-        product = db.execute_query(f"""
+        query = f"""
             select 
                 mp.*,
                 mv.code as vendor_code,
                 mv.name as vendor_name
             from marketplace.m_products mp 
             inner join marketplace.m_vendors mv on mv.id = mp.vendor_id 
-            where mp.id = '{product_id}'
-        """)
+            where mp.id = '{productId}'
+        """
+
+        result = db.executeQuery(query)
+
+        return result if result[0] else None
+    except Exception as e:
+        print(f"getMarketplaceProductById: {e}")
+    finally:
+        if(isClose == True):
+            db.close()
+
+def getMarketplaceInstancePeriod(db = dbContext(), period = None, instanceId = None, isClose = False):
+    print("Start function getMarketplaceIntance_period")
+
+    try:
+        if period == None:
+            period = getCurrentPeriod()
         
-        if(isClose == True):
-            db.close()
-
-        return product if product[0] else None
-    except Exception as e:
-        print(f"get_instance_period: {e}")
-    finally:
-        if(isClose == True):
-            db.close()
-
-def get_marketplace_instance_period(db = dbContext(), current_year_month = None, instance_id = None, isClose = False):
-    print("Start function get_marketplace_intance_period")
-
-    try:
-        if current_year_month == None:
-            current_year_month = get_current_period()
-
-        instance_usage = db.execute_query(f"""
+        query = f"""
             select * from marketplace.t_instance_usages tiu 
-            where tiu.period = '{current_year_month}'
-            and tiu.instance_id = '{instance_id}'
-        """)
+            where tiu.period = '{period}'
+            and tiu.instance_id = '{instanceId}'
+        """
 
-        return instance_usage
+        result = db.executeQuery(query)
+
+        return result
     except Exception as e:
-        print(f"Error in get_instance_period: {e}")
+        print(f"Error in getMarketplaceInstancePeriod: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def gen_marketplace_instance_period(db = dbContext(), current_year_month = None, instance = None, isClose = False):
-    print("Starting function: gen_marketplace_instance_period")
+def genMarketplaceInstancePeriod(db = dbContext(), period = None, instance = None, isClose = False):
+    print("Starting function: genMarketplaceInstancePeriod")
 
     try:
-        if current_year_month is None:
-            current_year_month = get_current_period()
+        if period is None:
+            period = getCurrentPeriod()
 
-        first_date, last_date = get_date_range(current_year_month)
+        firstDate, lastDate = getDateRange(period)
 
-        product = get_marketplace_product_by_id(db=db, product_id=instance.product_id)
+        product = getMarketplaceProductById(db=db, productId=instance.product_id)
 
         instance_usage = {
             "instance_id": instance.id,
-            "period": current_year_month,
-            "period_begin_date": first_date,
-            "period_end_date": last_date,
+            "period": period,
+            "period_begin_date": firstDate,
+            "period_end_date": lastDate,
             "usage": Decimal('0'),
             "usage_date": datetime.now(),
             "unblended_cost": Decimal('0'),
             "unblended_rate": Decimal(product[0].price_per_unit)
         }
 
-        insert_query = """
+        query = """
         INSERT INTO marketplace.t_instance_usages (
             instance_id,
             period,
@@ -525,44 +576,44 @@ def gen_marketplace_instance_period(db = dbContext(), current_year_month = None,
             instance_usage["unblended_rate"],
         )
 
-        db.execute_non_query(insert_query, params)
+        db.executeNonQuery(query, params)
         print("Marketplace Instance usage inserted successfully.")
     except Exception as e:
-        print(f"Error gen_marketplace_instance_period: {e}")
+        print(f"Error genMarketplaceInstancePeriod: {e}")
     finally:
         if(isClose == True):
             db.close()
 
-def update_marketplace_instance_period(db = dbContext(), current_year_month = None, instance = None, isClose = False):
-    print("Starting function: update_marketplace_instance_period")
+def updateMarketplaceInstancePeriod(db = dbContext(), period = None, instance = None, isClose = False):
+    print("Starting function: updateMarketplaceInstancePeriod")
 
     try:
-        if current_year_month is None:
-            current_year_month = get_current_period()
+        if period is None:
+            period = getCurrentPeriod()
 
-        instance_usage = get_marketplace_instance_usage(db=db, current_year_month=current_year_month, instance=instance)
+        instanceUsage = getMarketplaceInstanceUsage(db=db, period=period, instance=instance)
         
-        if not instance_usage:
+        if not instanceUsage:
             print("No instance usage found for the provided parameters.")
             return
         
-        instance = instance_usage[0]
-        instance_dict = {
+        instance = instanceUsage[0]
+        instanceDict = {
             "id": instance.id,
             "usage": instance.usage,
             "unblended_rate": instance.unblended_rate,
             "unblended_cost": instance.unblended_cost
         }
 
-        if instance_dict["usage"] == Decimal('0E-12') or instance_dict["usage"] == Decimal('0'):
-            instance_dict["usage"] = Decimal(random.uniform(1.0, 100.0))
+        if instanceDict["usage"] == Decimal('0E-12') or instanceDict["usage"] == Decimal('0'):
+            instanceDict["usage"] = Decimal(random.uniform(1.0, 100.0))
         else:
-            random_percentage = Decimal(get_random_percentage())
-            instance_dict["usage"] *= (1 + random_percentage)
+            randomPercentage = Decimal(getRandomPercentage())
+            instanceDict["usage"] *= (1 + randomPercentage)
 
-        instance_dict["unblended_cost"] = instance_dict["unblended_rate"] * instance_dict["usage"]
+        instanceDict["unblended_cost"] = instanceDict["unblended_rate"] * instanceDict["usage"]
 
-        update_query = """
+        query = """
             UPDATE marketplace.t_instance_usages
             SET 
                 usage = %s, 
@@ -572,21 +623,21 @@ def update_marketplace_instance_period(db = dbContext(), current_year_month = No
             AND period = %s
         """
 
-        update_params = (instance_dict["usage"], instance_dict["unblended_cost"], instance_dict["id"], current_year_month)
+        params = (instanceDict["usage"], instanceDict["unblended_cost"], instanceDict["id"], period)
 
-        db.execute_non_query(update_query, update_params)
+        db.executeNonQuery(query, params)
         print("Instance usage updated successfully.")
     except Exception as e:
-        print(f"Error in update_instance_period: {e}")
+        print(f"Error in updateMarketplaceInstancePeriod: {e}")
 
-def get_marketplace_instance_usage(db = dbContext(), current_year_month = None, instance = None, isClose = False):
-    print("Starting function: get_marketplace_instance_usage")
+def getMarketplaceInstanceUsage(db = dbContext(), period = None, instance = None, isClose = False):
+    print("Starting function: getMarketplaceInstanceUsage")
 
     try:
-        if current_year_month is None:
-            current_year_month = get_current_period()
+        if period is None:
+            period = getCurrentPeriod()
 
-        insert_query = """
+        query = """
             SELECT *
             FROM marketplace.t_instance_usages
             WHERE instance_id = %s 
@@ -595,14 +646,14 @@ def get_marketplace_instance_usage(db = dbContext(), current_year_month = None, 
 
         params = (
             instance.id,
-            current_year_month
+            period
         )
 
-        marketplace_instance_usage = db.execute_query(insert_query, params)
+        marketplaceInstanceUsage = db.executeQuery(query, params)
 
-        return marketplace_instance_usage if marketplace_instance_usage[0] else None
+        return marketplaceInstanceUsage if marketplaceInstanceUsage[0] else None
     except Exception as e:
-        print("Error in get_instance_usage: {e}")
+        print("Error in getMarketplaceInstanceUsage: {e}")
     finally:
         if isClose == True:
             db.close()
@@ -613,49 +664,49 @@ def main():
     try:
         db = dbContext()
 
-        period = get_current_period()
+        period = getCurrentPeriod()
         # period = '2024_11'
 
-        instances = get_instances(db=db)
+        instances = getInstances(db=db)
         
         if len(instances) > 0:
             for instance in instances:
-                instance_period = get_instance_period(db=db, instance_id=instance.id, current_year_month=period)
+                instancePeriod = getInstancePeriod(db=db, instanceId=instance.id, period=period)
 
-                if(instance_period == None):
-                    gen_instance_period(db=db, instance=instance, current_year_month=period)
+                if(instancePeriod == None):
+                    genInstancePeriod(db=db, instance=instance, period=period)
 
-                update_instance_period(db=db, instance=instance, current_year_month=period)
+                updateInstancePeriod(db=db, instance=instance, period=period)
         
-        marketplace_instances = get_marketplace_intance(db=db)
+        marketplaceInstances = getMarketplaceIntance(db=db)
         
-        if len(marketplace_instances) > 0:
-            for instance in marketplace_instances:
-                instance_period = get_marketplace_instance_period(db=db, instance_id=instance.id, current_year_month=period)
+        if len(marketplaceInstances) > 0:
+            for instance in marketplaceInstances:
+                instancePeriod = getMarketplaceInstancePeriod(db=db, instanceId=instance.id, period=period)
 
-                if(instance_period == None):
-                    gen_marketplace_instance_period(db=db, instance=instance, current_year_month=period)
+                if(instancePeriod == None):
+                    genMarketplaceInstancePeriod(db=db, instance=instance, period=period)
 
-                update_marketplace_instance_period(db=db, instance=instance, current_year_month=period)
+                updateMarketplaceInstancePeriod(db=db, instance=instance, period=period)
 
         query = """
             select * from master.m_accounts ma 
             where parent_account_id is null
         """
 
-        parent_accounts = db.execute_query(query)
+        parentAccounts = db.executeQuery(query)
 
-        if len(parent_accounts) == 0:
+        if len(parentAccounts) == 0:
             print("Data not found")
             return
         
-        for parent_account in parent_accounts:
+        for parentAccount in parentAccounts:
             query = f"""
                 select * from master.m_accounts ma
-                where (id = '{parent_account.id}' or parent_account_id = '{parent_account.id}')
+                where (id = '{parentAccount.id}' or parent_account_id = '{parentAccount.id}')
             """
 
-            export_to_csv(db=db, parent_account_id=parent_account.id, parent_account_code=parent_account.code, current_year_month=period)
+            exportFile(db=db, parentAccountId=parentAccount.id, parentAccountCode=parentAccount.code, period=period)
     except Exception as e:
         print(f"Main Error: {e}")
     finally:

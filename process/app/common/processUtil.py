@@ -14,9 +14,10 @@ class processUtil:
         
         self.db_url = f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}/{self.db_name}"
 
-    def push_csv_to_db(self, csv_file_paths, if_exists='replace'):
-        for csv_file_path in csv_file_paths:
-            table_name = os.path.splitext(os.path.basename(csv_file_path))[0]
+    def push_csv_to_db(self, csvFilePaths, if_exists='replace'):
+        for csv_file_path in csvFilePaths:
+            table_name = "t_" + os.path.splitext(os.path.basename(csv_file_path))[0].lower()
+            
             try:
                 df = pd.read_csv(csv_file_path)
             except Exception as e:

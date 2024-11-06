@@ -3,12 +3,12 @@ import os
 
 import psycopg2
 from psycopg2 import OperationalError
-from app.common.dbObject import convert_to_object
+from app.common.dbObject import convertToObject
 
-db_host = os.getenv("DB_HOST")
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
-db_name = os.getenv("DB_NAME")
+dbHost = os.getenv("DB_HOST")
+dbUser = os.getenv("DB_USER")
+dbPassword = os.getenv("DB_PASSWORD")
+dbName = os.getenv("DB_NAME")
 
 class dbContext:
     def __init__(self):
@@ -22,10 +22,10 @@ class dbContext:
         for attempt in range(1, attempts + 1):
             try:
                 self.connection = psycopg2.connect(
-                    dbname=db_name,
-                    user=db_user,
-                    password=db_password,
-                    host=db_host  
+                    dbname=dbName,
+                    user=dbUser,
+                    password=dbPassword,
+                    host=dbHost  
                 )
                 self.cursor = self.connection.cursor()
                 print("Connection to the database was successful.")
@@ -35,9 +35,9 @@ class dbContext:
                 time.sleep(3)  # Delay before retrying
         print("Failed to connect to the database after multiple attempts.")
 
-    def execute_query(self, query, params=None):
+    def executeQuery(self, query, params=None):
         """Execute a SELECT query and return the results as objects."""
-        self.check_connection()  # Ensure the connection is alive
+        self.checkConnection()  # Ensure the connection is alive
         if params:
             self.cursor.execute(query, params)
         else:
@@ -52,12 +52,12 @@ class dbContext:
             return None
 
         # Convert to object-like rows if data exists
-        return convert_to_object(rows, self.cursor)
+        return convertToObject(rows, self.cursor)
     
-    def execute_non_query(self, query, params=None):
+    def executeNonQuery(self, query, params=None):
         """Execute a non-SELECT query without expecting a response."""
         try:
-            self.check_connection()
+            self.checkConnection()
             if params:
                 self.cursor.execute(query, params)
             else:
@@ -69,22 +69,22 @@ class dbContext:
             print(f"Params: {params}")
             print(e)
 
-    def get_column_names(self, query, params=None):
+    def getColumnNames(self, query, params=None):
         """Get column names from a given SQL query."""
-        self.check_connection()
+        self.checkConnection()
         try:
             if params:
                 self.cursor.execute(query, params)
             else:
                 self.cursor.execute(query)
 
-            column_names = [desc[0] for desc in self.cursor.description]
-            return column_names
+            columnNames = [desc[0] for desc in self.cursor.description]
+            return columnNames
         except Exception as e:
             print(f"Error getting column names: {e}")
             return None
 
-    def check_connection(self):
+    def checkConnection(self):
         """Check if the connection is still alive."""
         if self.connection is None or self.cursor is None:
             self.connect()
@@ -104,9 +104,9 @@ class dbContext:
             self.connection.close()
         print("Database connection closed.")
 
-    def begin_transaction(self):
+    def beginTransaction(self):
         """Begin a transaction."""
-        self.check_connection()
+        self.checkConnection()
         self.connection.autocommit = False
 
     def commit_transaction(self):
@@ -116,5 +116,5 @@ class dbContext:
             print("Transaction committed successfully.")
         except Exception as e:
             print(f"Commit failed: {e}")
-            self.rollback_transaction()
+            self.rollbackTransaction()
             raise
