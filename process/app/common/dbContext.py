@@ -103,18 +103,3 @@ class dbContext:
         if self.connection:
             self.connection.close()
         print("Database connection closed.")
-
-    def beginTransaction(self):
-        """Begin a transaction."""
-        self.checkConnection()
-        self.connection.autocommit = False
-
-    def commit_transaction(self):
-        """Commit the transaction if successful."""
-        try:
-            self.connection.commit()
-            print("Transaction committed successfully.")
-        except Exception as e:
-            print(f"Commit failed: {e}")
-            self.rollbackTransaction()
-            raise

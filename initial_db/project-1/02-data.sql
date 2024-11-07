@@ -17,17 +17,17 @@ VALUES
 
 INSERT INTO master.m_accounts (code, name, account_type_id, parent_account_id, created_by, created_date, row_status)
 VALUES 
-    ('429092326773', 'a-money', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('936922002519', 'a-commerce', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('116819170887', 'a-idc', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('655484151593', 'a-bit', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('912577240677', 'a-digital', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active');
+    ('429092326773', 'a-money', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'a-group'), 'System', current_timestamp, 'active'),
+    ('936922002519', 'a-commerce', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'a-group'), 'System', current_timestamp, 'active'),
+    ('116819170887', 'a-idc', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'a-group'), 'System', current_timestamp, 'active'),
+    ('655484151593', 'a-bit', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'a-group'), 'System', current_timestamp, 'active'),
+    ('912577240677', 'a-digital', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'a-group'), 'System', current_timestamp, 'active');
 
 INSERT INTO master.m_accounts (code, name, account_type_id, parent_account_id, created_by, created_date, row_status)
 VALUES 
-    ('998795981022', 't-telecom', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active'),
-    ('684957738202', 't-visions', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active'),
-    ('682545126939', 't-online', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active');
+    ('998795981022', 't-telecom', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 't-corporation'), 'System', current_timestamp, 'active'),
+    ('684957738202', 't-visions', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 't-corporation'), 'System', current_timestamp, 'active'),
+    ('682545126939', 't-online', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 't-corporation'), 'System', current_timestamp, 'active');
 
 INSERT INTO master.m_discount_programs (code, name, discount_type, unit_type, min_value, max_value, start_date, end_date, created_by, created_date, row_status)
 VALUES 

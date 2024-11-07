@@ -3,7 +3,7 @@ import gzip
 import os
 import random
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from app.common.dbContext import dbContext
 from app.common.minioClient import minioClient
@@ -404,7 +404,7 @@ def exportFile(db = dbContext(), period = None, parentAccountId = None, parentAc
                             ma.code AS usage_account_id,
                             ma.name AS usage_account_name,
                             tiu.usage as usage_amount,
-                            ROUND(tiu.unblended_cost * 0.07) AS unblended_cost,
+                            ROUND(tiu.unblended_cost * 0.07, 12) AS unblended_cost,
                             NULL AS unblended_rate,
                             ti.code AS instance_id,
                             ti.name AS instance_name,
@@ -658,6 +658,27 @@ def getMarketplaceInstanceUsage(db = dbContext(), period = None, instance = None
         if isClose == True:
             db.close()
 
+def getDaysPeriod(period=None):
+    try:
+        if period is None:
+            period = getCurrentPeriod()
+
+        year, month = map(int, period.split('_'))
+
+        firstDayOfMonth = date(year, month, 1)
+
+        if month == 12:
+            nextMonth = date(year + 1, 1, 1)
+        else:
+            nextMonth = date(year, month + 1, 1)
+        
+        lastDayOfMonth = nextMonth - timedelta(days=1)
+
+        return lastDayOfMonth.day
+    except Exception as e:
+        print(f"Error in getDaysPeriod: {e}")
+        return 0
+
 def main():
     print("Start project-1")
 
@@ -666,6 +687,10 @@ def main():
 
         period = getCurrentPeriod()
         # period = '2024_11'
+
+        # generateNo = 1
+        generateNo = getDaysPeriod(period)
+        print(f"generateNo: {generateNo}")
 
         instances = getInstances(db=db)
         
@@ -676,7 +701,8 @@ def main():
                 if(instancePeriod == None):
                     genInstancePeriod(db=db, instance=instance, period=period)
 
-                updateInstancePeriod(db=db, instance=instance, period=period)
+                for i in range(1, generateNo + 1):
+                    updateInstancePeriod(db=db, instance=instance, period=period)
         
         marketplaceInstances = getMarketplaceIntance(db=db)
         
@@ -687,7 +713,8 @@ def main():
                 if(instancePeriod == None):
                     genMarketplaceInstancePeriod(db=db, instance=instance, period=period)
 
-                updateMarketplaceInstancePeriod(db=db, instance=instance, period=period)
+                for i in range(1, generateNo + 1):
+                    updateMarketplaceInstancePeriod(db=db, instance=instance, period=period)
 
         query = """
             select * from master.m_accounts ma 
