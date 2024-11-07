@@ -7,27 +7,27 @@ VALUES
 
 INSERT INTO master.m_accounts (code, name, account_type_id, parent_account_id, created_by, created_date, updated_by, updated_date, row_status)
 VALUES 
-    ('747443860322', '่john-doe', (SELECT id FROM master.m_account_types WHERE code = 'IND'), NULL, 'System', current_timestamp, NULL, NULL, 'active'),
+    ('747443860322', 'john-doe', (SELECT id FROM master.m_account_types WHERE code = 'IND'), NULL, 'System', current_timestamp, NULL, NULL, 'active'),
     ('774890550382', 'jane-smith', (SELECT id FROM master.m_account_types WHERE code = 'IND'), NULL, 'System', current_timestamp, NULL, NULL, 'active');
 
 INSERT INTO master.m_accounts (code, name, account_type_id, parent_account_id, created_by, created_date, row_status)
 VALUES 
-    ('441682894486', 'Ascend Group', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), NULL, 'System', current_timestamp, 'active'),
-    ('772313499959', 'True Corporation', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), NULL, 'System', current_timestamp, 'active');
+    ('441682894486', 'a-group', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), NULL, 'System', current_timestamp, 'active'),
+    ('772313499959', 't-corporation', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), NULL, 'System', current_timestamp, 'active');
 
 INSERT INTO master.m_accounts (code, name, account_type_id, parent_account_id, created_by, created_date, row_status)
 VALUES 
-    ('429092326773', 'ascend-money', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('936922002519', 'ascend-commerce', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('116819170887', 'true-idc', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('655484151593', 'ascend-bit', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
-    ('912577240677', 'egg-digital', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active');
+    ('429092326773', 'a-money', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
+    ('936922002519', 'a-commerce', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
+    ('116819170887', 'a-idc', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
+    ('655484151593', 'a-bit', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active'),
+    ('912577240677', 'a-digital', (SELECT id FROM master.m_account_types WHERE code = 'BUS'), (SELECT id FROM master.m_accounts WHERE name = 'Ascend Group'), 'System', current_timestamp, 'active');
 
 INSERT INTO master.m_accounts (code, name, account_type_id, parent_account_id, created_by, created_date, row_status)
 VALUES 
-    ('998795981022', 'truemove-h', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active'),
-    ('684957738202', 'true-visions', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active'),
-    ('682545126939', 'true-online', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active');
+    ('998795981022', 't-telecom', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active'),
+    ('684957738202', 't-visions', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active'),
+    ('682545126939', 't-online', (SELECT id FROM master.m_account_types WHERE code = 'ENT'), (SELECT id FROM master.m_accounts WHERE name = 'True Corporation'), 'System', current_timestamp, 'active');
 
 INSERT INTO master.m_discount_programs (code, name, discount_type, unit_type, min_value, max_value, start_date, end_date, created_by, created_date, row_status)
 VALUES 
@@ -61,18 +61,18 @@ VALUES
     ('G7H8I9J0K1L2', 'jane_smith_venture', (SELECT id FROM master.m_accounts WHERE code = '774890550382'), 'An innovative project led by Jane Smith to streamline service delivery.', 'System', current_timestamp, 'active'),
 
     -- For Ascend Group
-    ('M3N4O5P6Q7R8', 'ascend_group_strategy', (SELECT id FROM master.m_accounts WHERE code = '441682894486'), 'A strategic initiative to expand Ascend Group’s market reach.', 'System', current_timestamp, 'active'),
-    ('S9T0U1V2W3X4', 'ascend_money_platform', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), 'Development of a digital platform for Ascend Money to enhance financial services.', 'System', current_timestamp, 'active'),
-    ('Y5Z6A7B8C9D0', 'ascend_commerce_experience', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), 'A project aimed at transforming the e-commerce experience for Ascend Commerce.', 'System', current_timestamp, 'active'),
-    ('E1F2G3H4I5J6', 'ascend_idc_innovation', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), 'Innovation initiative for Ascend IDC focusing on cloud solutions.', 'System', current_timestamp, 'active'),
-    ('K2L3M4N5O6P7', 'ascend_bit_transformation', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), 'Digital transformation project for Ascend Bit to improve operational efficiency.', 'System', current_timestamp, 'active'),
-    ('Q8R9S0T1U2V3', 'egg_digital_revolution', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), 'A revolutionary project to redefine digital marketing strategies for Egg Digital.', 'System', current_timestamp, 'active'),
+    ('M3N4O5P6Q7R8', 'a_group_strategy', (SELECT id FROM master.m_accounts WHERE code = '441682894486'), 'A strategic initiative to expand Ascend Group’s market reach.', 'System', current_timestamp, 'active'),
+    ('S9T0U1V2W3X4', 'a_money_platform', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), 'Development of a digital platform for Ascend Money to enhance financial services.', 'System', current_timestamp, 'active'),
+    ('Y5Z6A7B8C9D0', 'a_commerce_experience', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), 'A project aimed at transforming the e-commerce experience for Ascend Commerce.', 'System', current_timestamp, 'active'),
+    ('E1F2G3H4I5J6', 'a_idc_innovation', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), 'Innovation initiative for Ascend IDC focusing on cloud solutions.', 'System', current_timestamp, 'active'),
+    ('K2L3M4N5O6P7', 'a_bit_transformation', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), 'Digital transformation project for Ascend Bit to improve operational efficiency.', 'System', current_timestamp, 'active'),
+    ('Q8R9S0T1U2V3', 'a_digital_revolution', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), 'A revolutionary project to redefine digital marketing strategies for Egg Digital.', 'System', current_timestamp, 'active'),
 
     -- For True Corporation
-    ('W4X5Y6Z7A8B9', 'true_corporation_growth', (SELECT id FROM master.m_accounts WHERE code = '772313499959'), 'Growth initiative for True Corporation focusing on expanding service offerings.', 'System', current_timestamp, 'active'),
-    ('C0D1E2F3G4H5', 'truemove_h_engagement', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), 'A project aimed at enhancing customer engagement for Truemove H.', 'System', current_timestamp, 'active'),
-    ('I6J7K8L9M0N1', 'true_visions_initiative', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), 'Initiative to explore innovative solutions for True Visions.', 'System', current_timestamp, 'active'),
-    ('O2P3Q4R5S6T7', 'true_online_service', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), 'A project to enhance online services and user experience for True Online.', 'System', current_timestamp, 'active');
+    ('W4X5Y6Z7A8B9', 't_corporation_growth', (SELECT id FROM master.m_accounts WHERE code = '772313499959'), 'Growth initiative for True Corporation focusing on expanding service offerings.', 'System', current_timestamp, 'active'),
+    ('C0D1E2F3G4H5', 't_telecom_h_engagement', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), 'A project aimed at enhancing customer engagement for Truemove H.', 'System', current_timestamp, 'active'),
+    ('I6J7K8L9M0N1', 't_visions_initiative', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), 'Initiative to explore innovative solutions for True Visions.', 'System', current_timestamp, 'active'),
+    ('O2P3Q4R5S6T7', 't_online_service', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), 'A project to enhance online services and user experience for True Online.', 'System', current_timestamp, 'active');
 
 -- Insert mock data into product.m_product_categories with AWS service categories
 INSERT INTO product.m_product_categories (code, name, description, row_status, created_by)
@@ -220,19 +220,19 @@ VALUES
 
 INSERT INTO marketplace.t_instances (code, name, account_id, product_id, effectived_date, expired_date, row_status)
 VALUES 
-    ('INST_AG_001', 'ascend-money-instance-1', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_002', 'ascend-money-instance-2', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_003', 'ascend-commerce-instance-1', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_004', 'ascend-commerce-instance-2', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_005', 'true-idc-instance-1', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_006', 'true-idc-instance-2', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_007', 'ascend-bit-instance-1', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_008', 'ascend-bit-instance-2', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_009', 'egg-digital-instance-1', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_AG_010', 'egg-digital-instance-2', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_TC_001', 'truemove-h-instance-1', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_TC_002', 'truemove-h-instance-2', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_TC_003', 'true-visions-instance-1', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_TC_004', 'true-visions-instance-2', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_TC_005', 'true-online-instance-1', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
-    ('INST_TC_006', 'true-online-instance-2', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active');
+    ('INST_AG_001', 'a-money-instance-1', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_002', 'a-money-instance-2', (SELECT id FROM master.m_accounts WHERE code = '429092326773'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_003', 'a-commerce-instance-1', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_004', 'a-commerce-instance-2', (SELECT id FROM master.m_accounts WHERE code = '936922002519'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_005', 'a-idc-instance-1', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_006', 'a-idc-instance-2', (SELECT id FROM master.m_accounts WHERE code = '116819170887'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_007', 'a-bit-instance-1', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_008', 'a-bit-instance-2', (SELECT id FROM master.m_accounts WHERE code = '655484151593'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_009', 'a-digital-instance-1', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_AG_010', 'a-digital-instance-2', (SELECT id FROM master.m_accounts WHERE code = '912577240677'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_001', 't-telecom-h-instance-1', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_002', 't-telecom-h-instance-2', (SELECT id FROM master.m_accounts WHERE code = '998795981022'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_003', 't-visions-instance-1', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_004', 't-visions-instance-2', (SELECT id FROM master.m_accounts WHERE code = '684957738202'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_005', 't-online-instance-1', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active'),
+    ('INST_TC_006', 't-online-instance-2', (SELECT id FROM master.m_accounts WHERE code = '682545126939'), (SELECT id FROM marketplace.m_products ORDER BY RANDOM() LIMIT 1), current_timestamp, NULL, 'active');
