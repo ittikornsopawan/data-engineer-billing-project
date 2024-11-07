@@ -326,7 +326,7 @@ def exportFile(db = dbContext(), period = None, parentAccountId = None, parentAc
                             tiu.usage as usage_amount,
                             CASE 
                                 WHEN COALESCE(parent_discount_program.min_value, madp.min_value) IS NOT NULL THEN 
-                                    -1 * tiu.unblended_cost * (COALESCE(parent_discount_program.min_value, madp.min_value) / 100)
+                                    -1 * tiu.unblended_cost * (COALESCE(madp.min_value, parent_discount_program.min_value) / 100)
                                 ELSE 
                                     0
                             END AS unblended_cost,
@@ -404,7 +404,7 @@ def exportFile(db = dbContext(), period = None, parentAccountId = None, parentAc
                             ma.code AS usage_account_id,
                             ma.name AS usage_account_name,
                             tiu.usage as usage_amount,
-                            ROUND(tiu.unblended_cost * 0.07, 12) AS unblended_cost,
+                            ROUND(tiu.unblended_cost * 0.07) AS unblended_cost,
                             NULL AS unblended_rate,
                             ti.code AS instance_id,
                             ti.name AS instance_name,
